@@ -3,8 +3,11 @@
 {% if salt['pillar.get']('filebeat:logstash:tls:enabled', False)  %}
 {{ salt['pillar.get']('filebeat:logstash:tls:ssl_cert_path', '/etc/pki/tls/certs/logstash-forwarder.crt') }}:
   file.managed:
-    - source: {{ salt['pillar.get']('filebeat:logstash:tls:ssl_cert', 'salt://filebeat/files/ca.pem') }}
-    - template: jinja
+{% if salt['pillar.get']('filebeat:logstash:tls:ssl_cert') %}
+    - pillar_contents: filebeat:logstash:tls:ssl_cert
+{% else %}
+    - source: {{ salt['pillar.get']('filebeat:logstash:tls:ssl_cert_source', 'salt://filebeat/files/ca.pem') }}
+{% endif %}
     - makedirs: True
     - user: root
     - group: root
